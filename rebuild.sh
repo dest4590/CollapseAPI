@@ -1,0 +1,5 @@
+docker stop collapseapi
+docker rm collapseapi
+git pull
+docker build -t collapse/api .
+docker run --name collapseapi --restart always -p 4754:8754 --volume ./media:/app/media --volume ./db.sqlite3:/app/db.sqlite3 --volume ./.env:/app/.env -d collapse/api

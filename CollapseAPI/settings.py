@@ -13,9 +13,8 @@ DEBUG = os.getenv("DEBUG", "True") == "True"
 ALLOWED_HOSTS = ["*"]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://api.collapseloader.org/",
+    "https://api.collapseloader.org",
 ]
-
 
 INSTALLED_APPS = [
     "unfold",

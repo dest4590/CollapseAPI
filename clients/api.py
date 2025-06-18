@@ -3,7 +3,11 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 from clients.models import Client
-from client_statistics.models import ClientLaunchStats, ClientDownloadStats
+from client_statistics.models import (
+    ClientLaunchStats,
+    ClientDownloadStats,
+    LoaderLaunchStats,
+)
 
 
 @csrf_exempt
@@ -38,3 +42,15 @@ def client_download(request, client_id):
             "downloads_count": downloads,
         }
     )
+
+
+@csrf_exempt
+@require_POST
+def loader_launch(request):
+    """
+    API endpoint to record a loader launch.
+    Increments the launches counter and returns the updated count.
+    """
+    launches = LoaderLaunchStats.record_launch()
+
+    return JsonResponse({"status": "success", "runs": launches})

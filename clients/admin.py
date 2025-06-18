@@ -1,4 +1,6 @@
 from django.contrib import admin
+
+from client_statistics.models import LoaderLaunchStats
 from .models import Client
 from unfold.admin import ModelAdmin
 
@@ -13,9 +15,20 @@ class ClientAdmin(ModelAdmin):
         "insecure",
         "show",
         "working",
+        "launches",
+        "downloads",
         "created_at",
         "updated_at",
     )
     search_fields = ("name", "version", "filename")
     list_filter = ("insecure", "show", "working")
     ordering = ("-created_at",)
+
+
+@admin.register(LoaderLaunchStats)
+class LoaderLaunchStatsAdmin(ModelAdmin):
+    list_display = (
+        "launches",
+        "last_launched_at",
+    )
+    search_fields = ("launches",)

@@ -69,3 +69,34 @@ class ClientDownloadStats(models.Model):
             client_id=client_id, defaults={"downloads": 0}
         )
         return obj.increment_downloads()
+
+
+class LoaderLaunchStats(models.Model):
+    launches = models.PositiveIntegerField(
+        default=0, help_text="Total number of loader launches"
+    )
+    last_launched_at = UnixDateTimeField(
+        auto_now=True, help_text="When the loader was last launched", db_index=True
+    )
+
+    class Meta:
+        db_table = "loader_launches"
+        ordering = ["-last_launched_at"]
+        verbose_name = "Loader Launch Statistics"
+        verbose_name_plural = "Loader Launch Statistics"
+
+    def increment_launches(self):
+        """Atomically increment the launches counter"""
+        with transaction.atomic():
+            self.launches = models.F("launches") + 1
+            self.save(update_fields=["launches", "last_launched_at"])
+            self.refresh_from_db()
+        return self.launches
+
+    @classmethod
+    def record_launch(cls):
+        """Record a launch for the given loader_id"""
+        obj, created = cls.objects.using("statistics").get_or_create(
+            defaults={"launches": 0}
+        )
+        return obj.increment_launches()

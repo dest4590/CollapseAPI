@@ -26,6 +26,7 @@ urlpatterns = [
     path(
         "api/client/<int:client_id>/download", client_download, name="client_download"
     ),
+    path("api/loader/<int:loader_id>/launch", loader_launch, name="loader_launch"),
     path("admin/", admin.site.urls),
     # SWAG $$$
     path(

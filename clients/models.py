@@ -39,36 +39,12 @@ class Client(models.Model):
     working = models.BooleanField(
         default=True, help_text="Indicates if the client is currently working."
     )
-    runs = models.PositiveIntegerField(
-        default=0, help_text="Number of times the client has been run."
-    )
-    downloads_count = models.PositiveIntegerField(
-        default=0, help_text="Number of times the client has been downloaded."
-    )
     created_at = models.DateTimeField(
         auto_now_add=True, help_text="Timestamp when the client was created."
     )
     updated_at = models.DateTimeField(
         auto_now=True, help_text="Timestamp when the client was last updated."
     )
-
-    def increment_client_runs(self):
-        """
-        Record a client launch by incrementing the runs counter and saving the instance.
-        Returns the updated runs count.
-        """
-        self.runs += 1
-        self.save(update_fields=["runs"])
-        return self.runs
-
-    def increment_downloads(self):
-        """
-        Record a client download by incrementing the downloads count and saving the instance.
-        Returns the updated downloads count.
-        """
-        self.downloads_count += 1
-        self.save(update_fields=["downloads_count"])
-        return self.downloads_count
 
     class Meta:
         ordering = ["-created_at"]

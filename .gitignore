@@ -2,9 +2,12 @@
 .vscode/
 clients/migrations/*
 !clients/migrations/__init__.py
+client_statistics/migrations/*
+!client_statistics/migrations/__init__.py
 clients/static/admin
 /media
 .env
 *.sqlite3
 *.pyc
 /venv
+/staticfiles

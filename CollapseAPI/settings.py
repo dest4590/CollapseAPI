@@ -8,7 +8,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("SECRET_KEY")
-DEBUG = os.getenv("DEBUG", "True") == "True"
+DEBUG = os.getenv("DJANGO_DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = ["*"]
 
@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     "rest_framework",
     "clients",
+    "client_statistics",
 ]
 
 MIDDLEWARE = [
@@ -70,8 +71,14 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
-    }
+    },
+    "statistics": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "statistics.sqlite3",
+    },
 }
+
+DATABASE_ROUTERS = ["client_statistics.routers.StatisticsRouter"]
 
 
 AUTH_PASSWORD_VALIDATORS = [

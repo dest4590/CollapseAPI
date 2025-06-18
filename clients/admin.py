@@ -13,8 +13,6 @@ class ClientAdmin(ModelAdmin):
         "insecure",
         "show",
         "working",
-        "runs",
-        "downloads_count",
         "created_at",
         "updated_at",
     )

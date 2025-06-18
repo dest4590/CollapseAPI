@@ -22,9 +22,9 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("api/client/<int:client_id>/launch/", client_launch, name="client_launch"),
+    path("api/client/<int:client_id>/launch", client_launch, name="client_launch"),
     path(
-        "api/client/<int:client_id>/download/", client_download, name="client_download"
+        "api/client/<int:client_id>/download", client_download, name="client_download"
     ),
     path("admin/", admin.site.urls),
     # SWAG $$$

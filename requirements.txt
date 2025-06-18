@@ -1,6 +1,7 @@
 django
 djangorestframework
+django-unixdatetimefield
 django-unfold
 python-dotenv
-drf_yasg
+drf-yasg
 whitenoise

@@ -16,6 +16,8 @@ class ClientSerializer(serializers.HyperlinkedModelSerializer):
             "version",
             "filename",
             "main_class",
+            "show",
+            "working",
             "insecure",
             "launches",
             "downloads",

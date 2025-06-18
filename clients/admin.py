@@ -24,6 +24,20 @@ class ClientAdmin(ModelAdmin):
     list_filter = ("insecure", "show", "working")
     ordering = ("-created_at",)
 
+    def launches(self, obj):
+        """Display the number of launches for this client"""
+        return obj.get_launches()
+
+    launches.short_description = "Launches"
+    launches.admin_order_field = "id"  # Allow sorting by ID as proxy
+
+    def downloads(self, obj):
+        """Display the number of downloads for this client"""
+        return obj.get_downloads()
+
+    downloads.short_description = "Downloads"
+    downloads.admin_order_field = "id"  # Allow sorting by ID as proxy
+
 
 @admin.register(LoaderLaunchStats)
 class LoaderLaunchStatsAdmin(ModelAdmin):

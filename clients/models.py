@@ -24,6 +24,28 @@ class Client(models.Model):
             self.filename = self.name + ".jar"
         super().save(*args, **kwargs)
 
+    def get_launches(self):
+        """Get the total number of launches for this client"""
+        try:
+            from client_statistics.models import ClientLaunchStats
+
+            stats = ClientLaunchStats.objects.using("statistics").get(client_id=self.id)
+            return stats.launches
+        except ClientLaunchStats.DoesNotExist:
+            return 0
+
+    def get_downloads(self):
+        """Get the total number of downloads for this client"""
+        try:
+            from client_statistics.models import ClientDownloadStats
+
+            stats = ClientDownloadStats.objects.using("statistics").get(
+                client_id=self.id
+            )
+            return stats.downloads
+        except ClientDownloadStats.DoesNotExist:
+            return 0
+
     main_class = models.CharField(
         max_length=300,
         default="net.minecraft.client.main.Main",

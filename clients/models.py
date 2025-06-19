@@ -72,3 +72,19 @@ class Client(models.Model):
         ordering = ["-created_at"]
         verbose_name = "Client"
         verbose_name_plural = "Clients"
+
+
+class News(models.Model):
+    title = models.CharField(max_length=200, help_text="Title of the news article.")
+    content = models.TextField(help_text="Content of the news article (HTML format).")
+    created_at = models.DateTimeField(
+        auto_now_add=True, help_text="Timestamp when the news article was created."
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True, help_text="Timestamp when the news article was last updated."
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "News Article"
+        verbose_name_plural = "News Articles"

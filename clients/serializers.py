@@ -1,7 +1,7 @@
 from rest_framework import routers, serializers, viewsets
 from django.db import connections
 
-from clients.models import Client
+from clients.models import Client, News
 
 
 class ClientSerializer(serializers.HyperlinkedModelSerializer):
@@ -58,5 +58,17 @@ class ClientViewSet(viewsets.ModelViewSet):
     serializer_class = ClientSerializer
 
 
+class NewsSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = News
+        fields = ["id", "title", "content", "created_at", "updated_at"]
+
+
+class NewsViewSet(viewsets.ModelViewSet):
+    queryset = News.objects.all()
+    serializer_class = NewsSerializer
+
+
 router = routers.DefaultRouter()
 router.register(r"clients", ClientViewSet)
+router.register(r"news", NewsViewSet)

@@ -19,6 +19,25 @@ CSRF_TRUSTED_ORIGINS = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:1420",
     "http://127.0.0.1:1420",
+    "http://10.7.0.2:1420",
+    "http://tauri.localhost",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_HEADERS = [
+    "authorization",
+    "content-type",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "cache-control",
+    "connection",
+    "host",
+    "origin",
+    "pragma",
+    "referer",
+    "user-agent",
+    "x-requested-with",
 ]
 
 INSTALLED_APPS = [

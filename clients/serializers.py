@@ -61,12 +61,18 @@ class ClientViewSet(viewsets.ModelViewSet):
 class NewsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = News
-        fields = ["id", "title", "content", "created_at", "updated_at"]
+        fields = ["id", "title", "content", "language", "created_at", "updated_at"]
 
 
 class NewsViewSet(viewsets.ModelViewSet):
-    queryset = News.objects.all()
     serializer_class = NewsSerializer
+
+    def get_queryset(self):
+        queryset = News.objects.all()
+        language = self.request.query_params.get("language", None)
+        if language is not None:
+            queryset = queryset.filter(language=language)
+        return queryset
 
 
 router = routers.DefaultRouter()

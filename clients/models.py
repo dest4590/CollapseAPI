@@ -75,8 +75,19 @@ class Client(models.Model):
 
 
 class News(models.Model):
+    LANGUAGE_CHOICES = [
+        ("en", "English"),
+        ("ru", "Russian"),
+    ]
+
     title = models.CharField(max_length=200, help_text="Title of the news article.")
     content = models.TextField(help_text="Content of the news article (HTML format).")
+    language = models.CharField(
+        max_length=2,
+        choices=LANGUAGE_CHOICES,
+        default="en",
+        help_text="Language of the news article.",
+    )
     created_at = models.DateTimeField(
         auto_now_add=True, help_text="Timestamp when the news article was created."
     )

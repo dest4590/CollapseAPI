@@ -52,7 +52,9 @@ class LoaderLaunchStatsAdmin(ModelAdmin):
 class NewsAdmin(ModelAdmin):
     list_display = (
         "title",
+        "language",
         "created_at",
         "updated_at",
     )
     search_fields = ("title",)
+    list_filter = ("language",)

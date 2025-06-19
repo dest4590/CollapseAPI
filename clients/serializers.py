@@ -65,6 +65,7 @@ class NewsSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class NewsViewSet(viewsets.ModelViewSet):
+    queryset = News.objects.all()
     serializer_class = NewsSerializer
 
     def get_queryset(self):

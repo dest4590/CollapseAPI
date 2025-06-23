@@ -29,9 +29,10 @@ class ClientSerializer(serializers.HyperlinkedModelSerializer):
         try:
             cursor = connections["statistics"].cursor()
             cursor.execute(
-                "SELECT COUNT(*) FROM client_launches WHERE client_id = %s", [obj.id]
+                "SELECT launches FROM client_launches WHERE client_id = %s", [obj.id]
             )
-            return cursor.fetchone()[0]
+            result = cursor.fetchone()
+            return result[0] if result else 0
         except:
             return 0
 
@@ -40,9 +41,10 @@ class ClientSerializer(serializers.HyperlinkedModelSerializer):
         try:
             cursor = connections["statistics"].cursor()
             cursor.execute(
-                "SELECT COUNT(*) FROM client_downloads WHERE client_id = %s", [obj.id]
+                "SELECT downloads FROM client_downloads WHERE client_id = %s", [obj.id]
             )
-            return cursor.fetchone()[0]
+            result = cursor.fetchone()
+            return result[0] if result else 0
         except:
             return 0
 

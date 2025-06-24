@@ -1,42 +1,50 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 
 from client_statistics.models import LoaderLaunchStats
-from .models import Client, News
-from unfold.admin import ModelAdmin
+
+from .models import Client, ChangelogEntry, News, ClientScreenshot
+
+
+class ChangelogEntryInline(admin.TabularInline):
+    model = ChangelogEntry
+    extra = 1
+    fields = ["version", "content", "created_at"]
+    readonly_fields = ["created_at"]
+
+
+class ClientScreenshotInline(admin.TabularInline):
+    model = ClientScreenshot
+    extra = 1
+    fields = ["image", "order"]
 
 
 @admin.register(Client)
 class ClientAdmin(ModelAdmin):
-    list_display = (
+    list_display = [
         "name",
         "version",
-        "filename",
-        "main_class",
-        "insecure",
-        "show",
         "working",
-        "launches",
-        "downloads",
+        "show",
         "created_at",
-        "updated_at",
+    ]
+    list_filter = ["working", "show", "insecure", "version"]
+    search_fields = ["name", "version"]
+    inlines = [ChangelogEntryInline, ClientScreenshotInline]
+    fieldsets = (
+        ("Basic Information", {"fields": ("name", "version", "filename", "md5_hash")}),
+        (
+            "Configuration",
+            {"fields": ("main_class", "insecure", "show", "working", "source_link")},
+        ),
     )
-    search_fields = ("name", "version", "filename")
-    list_filter = ("insecure", "show", "working")
-    ordering = ("-created_at",)
 
-    def launches(self, obj):
-        """Display the number of launches for this client"""
-        return obj.get_launches()
 
-    launches.short_description = "Launches"
-    launches.admin_order_field = "id"
-
-    def downloads(self, obj):
-        """Display the number of downloads for this client"""
-        return obj.get_downloads()
-
-    downloads.short_description = "Downloads"
-    downloads.admin_order_field = "id"
+@admin.register(ChangelogEntry)
+class ChangelogEntryAdmin(admin.ModelAdmin):
+    list_display = ["client", "version", "created_at"]
+    list_filter = ["client", "created_at"]
+    search_fields = ["client__name", "version", "content"]
 
 
 @admin.register(LoaderLaunchStats)
@@ -58,3 +66,10 @@ class NewsAdmin(ModelAdmin):
     )
     search_fields = ("title",)
     list_filter = ("language",)
+
+
+@admin.register(ClientScreenshot)
+class ClientScreenshotAdmin(ModelAdmin):
+    list_display = ["client", "order", "created_at"]
+    list_filter = ["client", "created_at"]
+    search_fields = ["client__name"]

@@ -1,5 +1,64 @@
+import hashlib
+import io
+
+import requests
+from django.core.files.base import ContentFile
 from django.db import models
 from django.utils.safestring import mark_safe
+from PIL import Image
+
+
+def client_screenshot_path(instance, filename):
+    """Generate path for client screenshots"""
+    return f"client_screenshots/{instance.client.id}/{filename}"
+
+
+class ClientScreenshot(models.Model):
+    client = models.ForeignKey(
+        "Client",
+        on_delete=models.CASCADE,
+        related_name="screenshots",
+        help_text="The client this screenshot belongs to.",
+    )
+    image = models.ImageField(
+        upload_to=client_screenshot_path,
+        help_text="Client screenshot (will be optimized to WebP format).",
+    )
+    order = models.PositiveIntegerField(
+        default=0,
+        help_text="Order of the screenshot (lower numbers appear first).",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "created_at"]
+        verbose_name = "Client Screenshot"
+        verbose_name_plural = "Client Screenshots"
+
+    def save(self, *args, **kwargs):
+        if self.image and hasattr(self.image, "file"):
+            self._optimize_screenshot()
+        super().save(*args, **kwargs)
+
+    def _optimize_screenshot(self):
+        """Optimize screenshot to WebP format"""
+        try:
+            image = Image.open(self.image.file)
+
+            if image.mode in ("RGBA", "LA", "P"):
+                image = image.convert("RGB")
+
+            max_size = (1920, 1080)
+            image.thumbnail(max_size, Image.Resampling.LANCZOS)
+
+            output = io.BytesIO()
+            image.save(output, format="WebP", quality=85, optimize=True)
+            output.seek(0)
+
+            filename = f"{self.client.name}_screenshot_{self.id}.webp"
+            self.image.save(filename, ContentFile(output.getvalue()), save=False)
+        except Exception as e:
+            print(f"Error optimizing screenshot for {self.client.name}: {e}")
 
 
 class Client(models.Model):
@@ -18,11 +77,35 @@ class Client(models.Model):
             "Filename with the client (on CDN). </br><b>Defaults to the client name + .jar if left blank.</b>"
         ),
     )
+    md5_hash = models.CharField(
+        max_length=32,
+        blank=True,
+        help_text="MD5 hash of the client file (auto-calculated from CDN, you can also set it manually).",
+    )
 
     def save(self, *args, **kwargs):
         if not self.filename:
             self.filename = self.name + ".jar"
+
+        if self.filename and not self.md5_hash:
+            self._calculate_md5_from_cdn()
+
         super().save(*args, **kwargs)
+
+    def _calculate_md5_from_cdn(self):
+        """Calculate MD5 hash from CDN file"""
+        try:
+            cdn_url = f"https://cdn.collapseloader.org/{self.filename}"
+            response = requests.get(cdn_url, timeout=30)
+            if response.status_code == 200:
+                md5_hash = hashlib.md5(response.content).hexdigest()
+                self.md5_hash = md5_hash
+        except Exception as e:
+            print(f"Error calculating MD5 for {self.name}: {e}")
+
+    def get_screenshot_urls(self):
+        """Get URLs for all client screenshots"""
+        return [screenshot.image.url for screenshot in self.screenshots.all()]
 
     def get_launches(self):
         """Get the total number of launches for this client"""
@@ -61,6 +144,11 @@ class Client(models.Model):
     working = models.BooleanField(
         default=True, help_text="Indicates if the client is currently working."
     )
+    source_link = models.URLField(
+        max_length=200,
+        blank=True,
+        help_text="URL where the client can be found.",
+    )
     created_at = models.DateTimeField(
         auto_now_add=True, help_text="Timestamp when the client was created."
     )
@@ -72,6 +160,42 @@ class Client(models.Model):
         ordering = ["-created_at"]
         verbose_name = "Client"
         verbose_name_plural = "Clients"
+
+    def __str__(self):
+        return f"{self.name} ({self.version})"
+
+
+class ChangelogEntry(models.Model):
+    client = models.ForeignKey(
+        Client,
+        on_delete=models.CASCADE,
+        related_name="changelog_entries",
+        help_text="The client this changelog entry belongs to.",
+    )
+    version = models.CharField(
+        max_length=50,
+        help_text="Version this changelog entry is for.",
+    )
+    content = models.TextField(
+        help_text="Changelog content describing what's new in this version."
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="Timestamp when this changelog entry was created.",
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        help_text="Timestamp when this changelog entry was last updated.",
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Changelog Entry"
+        verbose_name_plural = "Changelog Entries"
+        unique_together = ["client", "version"]
+
+    def __str__(self):
+        return f"{self.client.name} - {self.version}"
 
 
 class News(models.Model):

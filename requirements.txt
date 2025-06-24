@@ -6,3 +6,6 @@ django-unfold
 python-dotenv
 drf-yasg
 whitenoise
+Pillow
+requests
+hashlib

@@ -1,5 +1,4 @@
-from django.db import models
-from django.db import transaction
+from django.db import models, transaction
 from django_unixdatetimefield import UnixDateTimeField
 
 

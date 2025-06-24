@@ -1,7 +1,7 @@
-from rest_framework import routers, serializers, viewsets
 from django.db import connections
+from rest_framework import routers, serializers, viewsets
 
-from clients.models import Client, News
+from clients.models import Client, News, ChangelogEntry
 
 
 class ClientSerializer(serializers.HyperlinkedModelSerializer):
@@ -53,6 +53,37 @@ class ClientSerializer(serializers.HyperlinkedModelSerializer):
         if representation.get("insecure") is not True:
             representation.pop("insecure", None)
         return representation
+
+
+class ChangelogEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChangelogEntry
+        fields = ["version", "content", "created_at"]
+
+
+class ClientDetailedSerializer(serializers.HyperlinkedModelSerializer):
+    changelog_entries = ChangelogEntrySerializer(many=True, read_only=True)
+    screenshot_urls = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Client
+        fields = [
+            "md5_hash",
+            "source_link",
+            "screenshot_urls",
+            "changelog_entries",
+            "created_at",
+        ]
+
+    def get_screenshot_urls(self, obj):
+        request = self.context.get("request")
+        screenshots = []
+        for screenshot in obj.screenshots.all():
+            if request:
+                screenshots.append(request.build_absolute_uri(screenshot.image.url))
+            else:
+                screenshots.append(screenshot.image.url)
+        return screenshots
 
 
 class ClientViewSet(viewsets.ModelViewSet):

@@ -1,13 +1,15 @@
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
+import mimetypes
+import os
+
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET, require_POST
+
+from client_statistics.models import (ClientDownloadStats, ClientLaunchStats,
+                                      LoaderLaunchStats)
 from clients.models import Client
-from client_statistics.models import (
-    ClientLaunchStats,
-    ClientDownloadStats,
-    LoaderLaunchStats,
-)
+from clients.serializers import ClientDetailedSerializer
 
 
 @csrf_exempt
@@ -54,3 +56,39 @@ def loader_launch(request):
     launches = LoaderLaunchStats.record_launch()
 
     return JsonResponse({"status": "success", "runs": launches})
+
+
+@require_GET
+def client_screenshots(request, client_id):
+    """
+    API endpoint to get client screenshots.
+    Returns JSON with all screenshot URLs or 404 if not found.
+    """
+    client = get_object_or_404(Client, id=client_id)
+    
+    screenshots = client.screenshots.all()
+    if not screenshots.exists():
+        return JsonResponse({"error": "No screenshots available"}, status=404)
+    
+    screenshot_urls = []
+    for screenshot in screenshots:
+        screenshot_urls.append({
+            "id": screenshot.id,
+            "url": request.build_absolute_uri(screenshot.image.url),
+            "order": screenshot.order
+        })
+    
+    return JsonResponse({
+        "client_id": client_id,
+        "screenshots": screenshot_urls
+    })
+
+
+@require_GET
+def client_detailed(request, client_id):
+    """
+    API endpoint to get detailed client information including changelog and screenshots.
+    """
+    client = get_object_or_404(Client, id=client_id)
+    serializer = ClientDetailedSerializer(client, context={'request': request})
+    return JsonResponse(serializer.data)

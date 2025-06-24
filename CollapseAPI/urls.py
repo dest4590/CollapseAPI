@@ -1,9 +1,13 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
+from django.views.static import serve
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
+from CollapseAPI.settings import MEDIA_ROOT, STATIC_ROOT
 from clients.api import *
 from clients.serializers import router
 
@@ -26,6 +30,14 @@ urlpatterns = [
     path(
         "api/client/<int:client_id>/download", client_download, name="client_download"
     ),
+    path(
+        "api/client/<int:client_id>/screenshots",
+        client_screenshots,
+        name="client_screenshots",
+    ),
+    path(
+        "api/client/<int:client_id>/detailed", client_detailed, name="client_detailed"
+    ),
     path("api/loader/launch", loader_launch, name="loader_launch"),
     path("admin/", admin.site.urls),
     # SWAG $$$
@@ -38,4 +50,7 @@ urlpatterns = [
         name="schema-swagger-ui",
     ),
     path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
+    # shitcoded static serving $$$
+    re_path(r"^media/(?P<path>.*)$", serve, {"document_root": MEDIA_ROOT}),
+    re_path(r"^static/(?P<path>.*)$", serve, {"document_root": STATIC_ROOT}),
 ]

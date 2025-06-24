@@ -1,19 +1,19 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin
+from unfold.admin import ModelAdmin, TabularInline
 
 from client_statistics.models import LoaderLaunchStats
 
 from .models import Client, ChangelogEntry, News, ClientScreenshot
 
 
-class ChangelogEntryInline(admin.TabularInline):
+class ChangelogEntryInline(TabularInline):
     model = ChangelogEntry
     extra = 1
     fields = ["version", "content", "created_at"]
     readonly_fields = ["created_at"]
 
 
-class ClientScreenshotInline(admin.TabularInline):
+class ClientScreenshotInline(TabularInline):
     model = ClientScreenshot
     extra = 1
     fields = ["image", "order"]

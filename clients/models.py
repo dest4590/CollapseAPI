@@ -88,8 +88,8 @@ class Client(models.Model):
         if not self.filename:
             self.filename = self.name + ".jar"
 
-        # if self.filename and not self.md5_hash:
-            # self._calculate_md5_from_cdn()
+        if self.filename and not self.md5_hash:
+            self._calculate_md5_from_cdn()
 
         super().save(*args, **kwargs)
 
@@ -98,18 +98,23 @@ class Client(models.Model):
         if os.path.exists("/app/collapse"):
             file_path = os.path.join("/app/collapse", self.filename)
             if os.path.isfile(file_path):
+                md5_hash = hashlib.md5()
                 with open(file_path, "rb") as f:
-                    md5_hash = hashlib.md5(f.read()).hexdigest()
-                    self.md5_hash = md5_hash
+                    for chunk in iter(lambda: f.read(8192), b""):
+                        md5_hash.update(chunk)
+                self.md5_hash = md5_hash.hexdigest()
             else:
                 print(f"File {file_path} does not exist, skipping MD5 calculation.")
         else:
             try:
                 cdn_url = f"https://cdn.collapseloader.org/{self.filename}"
-                response = requests.get(cdn_url, timeout=30)
+                response = requests.get(cdn_url, timeout=30, stream=True)
                 if response.status_code == 200:
-                    md5_hash = hashlib.md5(response.content).hexdigest()
-                    self.md5_hash = md5_hash
+                    md5_hash = hashlib.md5()
+                    for chunk in response.iter_content(chunk_size=8192):
+                        if chunk:
+                            md5_hash.update(chunk)
+                    self.md5_hash = md5_hash.hexdigest()
             except Exception as e:
                 print(f"Error calculating MD5 for {self.name}: {e}")
 

@@ -1,5 +1,6 @@
 import hashlib
 import io
+import os
 
 import requests
 from django.core.files.base import ContentFile
@@ -94,14 +95,22 @@ class Client(models.Model):
 
     def _calculate_md5_from_cdn(self):
         """Calculate MD5 hash from CDN file"""
-        try:
-            cdn_url = f"https://cdn.collapseloader.org/{self.filename}"
-            response = requests.get(cdn_url, timeout=30)
-            if response.status_code == 200:
-                md5_hash = hashlib.md5(response.content).hexdigest()
-                self.md5_hash = md5_hash
-        except Exception as e:
-            print(f"Error calculating MD5 for {self.name}: {e}")
+        if os.path.exists("/app/collapse"):
+            file_path = os.path.join("/app/collapse", self.filename)
+            if os.path.isfile(file_path):
+                with open(file_path, "rb") as f:
+                    md5_hash = hashlib.md5(f.read()).hexdigest()
+                    self.md5_hash = md5_hash
+                return
+        else:
+            try:
+                cdn_url = f"https://cdn.collapseloader.org/{self.filename}"
+                response = requests.get(cdn_url, timeout=30)
+                if response.status_code == 200:
+                    md5_hash = hashlib.md5(response.content).hexdigest()
+                    self.md5_hash = md5_hash
+            except Exception as e:
+                print(f"Error calculating MD5 for {self.name}: {e}")
 
     def get_screenshot_urls(self):
         """Get URLs for all client screenshots"""

@@ -15,6 +15,7 @@ class ClientSerializer(serializers.HyperlinkedModelSerializer):
             "name",
             "version",
             "filename",
+            "md5_hash",
             "main_class",
             "show",
             "working",
@@ -68,7 +69,6 @@ class ClientDetailedSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Client
         fields = [
-            "md5_hash",
             "source_link",
             "screenshot_urls",
             "changelog_entries",

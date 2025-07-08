@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "clients",
     "client_statistics",
+    "django_apscheduler",
 ]
 
 MIDDLEWARE = [

@@ -22,10 +22,6 @@ def send_heartbeat():
         response = requests.get(heartbeat_url, timeout=10)
 
         response.raise_for_status()
-
-        logger.info(
-            f"Successfully sent heartbeat to {heartbeat_url}. Status: {response.status_code}"
-        )
     except requests.RequestException as e:
         logger.error(f"Failed to send heartbeat to {heartbeat_url}: {e}")
 

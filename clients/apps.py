@@ -1,4 +1,5 @@
 from django.apps import AppConfig
+from . import heartbeat
 import os
 
 class ClientsConfig(AppConfig):
@@ -7,5 +8,4 @@ class ClientsConfig(AppConfig):
 
     def ready(self):
         if os.environ.get("RUN_MAIN") == "true":
-            from . import heartbeat
             heartbeat.start()

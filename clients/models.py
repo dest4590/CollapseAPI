@@ -84,7 +84,7 @@ class Client(models.Model):
         help_text="MD5 hash of the client file (auto-calculated from CDN, you can also set it manually).",
     )
     size = models.IntegerField(
-        help_text="Size of the client file in bytes (auto-calculated from CDN, you can also set it manually).",
+        help_text="Size of the client file in MB (auto-calculated from CDN, you can also set it manually).",
         default=0,
     )
 
@@ -96,7 +96,8 @@ class Client(models.Model):
             self._calculate_md5_from_cdn()
 
         if self.size == 0:
-            self.size = int(self._get_file_size())
+            file_size_bytes = int(self._get_file_size())
+            self.size = file_size_bytes // (1024 * 1024)
 
         super().save(*args, **kwargs)
 

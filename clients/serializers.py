@@ -16,6 +16,7 @@ class ClientSerializer(serializers.HyperlinkedModelSerializer):
             "version",
             "filename",
             "md5_hash",
+            "size",
             "main_class",
             "show",
             "working",

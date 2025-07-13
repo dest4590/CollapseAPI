@@ -83,6 +83,9 @@ class Client(models.Model):
         blank=True,
         help_text="MD5 hash of the client file (auto-calculated from CDN, you can also set it manually).",
     )
+    size = models.IntegerField(
+        help_text="Size of the client file in bytes (auto-calculated from CDN, you can also set it manually).",
+    )
 
     def save(self, *args, **kwargs):
         if not self.filename:
@@ -91,32 +94,35 @@ class Client(models.Model):
         if self.filename and not self.md5_hash:
             self._calculate_md5_from_cdn()
 
+        if not self.size:
+            self.size = int(self._get_file_size())
+
         super().save(*args, **kwargs)
+
+    def _get_file_size(self):
+        """Get the file size of the client file from CDN"""
+        try:
+            cdn_url = f"https://cdn.collapseloader.org/{self.filename}"
+            response = requests.head(cdn_url, timeout=30)
+            if response.status_code == 200:
+                return response.headers.get("Content-Length", "0")
+        except Exception as e:
+            print(f"Error getting file size for {self.name}: {e}")
+        return "0"
 
     def _calculate_md5_from_cdn(self):
         """Calculate MD5 hash from CDN file"""
-        if os.path.exists("/app/collapse"):
-            file_path = os.path.join("/app/collapse", self.filename)
-            if os.path.isfile(file_path):
+        try:
+            cdn_url = f"https://cdn.collapseloader.org/{self.filename}"
+            response = requests.get(cdn_url, timeout=30, stream=True)
+            if response.status_code == 200:
                 md5_hash = hashlib.md5()
-                with open(file_path, "rb") as f:
-                    for chunk in iter(lambda: f.read(8192), b""):
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
                         md5_hash.update(chunk)
                 self.md5_hash = md5_hash.hexdigest()
-            else:
-                print(f"File {file_path} does not exist, skipping MD5 calculation.")
-        else:
-            try:
-                cdn_url = f"https://cdn.collapseloader.org/{self.filename}"
-                response = requests.get(cdn_url, timeout=30, stream=True)
-                if response.status_code == 200:
-                    md5_hash = hashlib.md5()
-                    for chunk in response.iter_content(chunk_size=8192):
-                        if chunk:
-                            md5_hash.update(chunk)
-                    self.md5_hash = md5_hash.hexdigest()
-            except Exception as e:
-                print(f"Error calculating MD5 for {self.name}: {e}")
+        except Exception as e:
+            print(f"Error calculating MD5 for {self.name}: {e}")
 
     def get_screenshot_urls(self):
         """Get URLs for all client screenshots"""

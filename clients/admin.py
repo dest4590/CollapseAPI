@@ -32,7 +32,10 @@ class ClientAdmin(ModelAdmin):
     search_fields = ["name", "version"]
     inlines = [ChangelogEntryInline, ClientScreenshotInline]
     fieldsets = (
-        ("Basic Information", {"fields": ("name", "version", "filename", "md5_hash")}),
+        (
+            "Basic Information",
+            {"fields": ("name", "version", "filename", "md5_hash", "size")},
+        ),
         (
             "Configuration",
             {"fields": ("main_class", "insecure", "show", "working", "source_link")},

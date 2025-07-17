@@ -15,6 +15,7 @@ def client_screenshot_path(instance, filename):
 
 
 class ClientScreenshot(models.Model):
+    id = models.AutoField(primary_key=True, help_text="Unique identifier for the screenshot.")
     client = models.ForeignKey(
         "Client",
         on_delete=models.CASCADE,

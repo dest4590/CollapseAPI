@@ -22,6 +22,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://10.7.0.2:1420",
     "http://tauri.localhost",
     "http://localhost:5173",
+    "https://collapseloader.org",
 ]
 
 CORS_ALLOW_CREDENTIALS = True

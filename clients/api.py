@@ -63,16 +63,21 @@ def loader_launch(request):
 
 @csrf_exempt
 @require_GET
-def client_statistics(request):
+def statistics(request):
     """
     API endpoint to get client statistics.
     Returns JSON with total launches and downloads for all clients.
     """
-    total_launches = ClientLaunchStats.get_total_launches()
-    total_downloads = ClientDownloadStats.get_total_downloads()
+    total_client_launches = ClientLaunchStats.get_total_launches()
+    total_client_downloads = ClientDownloadStats.get_total_downloads()
+    total_loader_launches = LoaderLaunchStats.get_total_launches()
 
     return JsonResponse(
-        {"total_launches": total_launches, "total_downloads": total_downloads}
+        {
+            "total_loader_launches": total_loader_launches,
+            "total_client_launches": total_client_launches,
+            "total_client_downloads": total_client_downloads,
+        }
     )
 
 

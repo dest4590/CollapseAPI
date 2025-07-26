@@ -119,3 +119,13 @@ class LoaderLaunchStats(models.Model):
             defaults={"launches": 0}
         )
         return obj.increment_launches()
+
+    @staticmethod
+    def get_total_launches():
+        """Get the total number of loader launches"""
+        return (
+            LoaderLaunchStats.objects.using("statistics").aggregate(
+                total_launches=models.Sum("launches")
+            )["total_launches"]
+            or 0
+        )

@@ -39,6 +39,7 @@ urlpatterns = [
         "api/client/<int:client_id>/detailed", client_detailed, name="client_detailed"
     ),
     path("api/loader/launch", loader_launch, name="loader_launch"),
+    path("api/client/statistics", client_statistics, name="client_statistics"),
     path("admin/", admin.site.urls),
     # SWAG $$$
     path(

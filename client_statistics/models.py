@@ -35,6 +35,16 @@ class ClientLaunchStats(models.Model):
         )
         return obj.increment_launches()
 
+    @staticmethod
+    def get_total_launches():
+        """Get the total number of launches across all clients"""
+        return (
+            ClientLaunchStats.objects.using("statistics").aggregate(
+                total_launches=models.Sum("launches")
+            )["total_launches"]
+            or 0
+        )
+
 
 class ClientDownloadStats(models.Model):
     client_id = models.IntegerField(
@@ -68,6 +78,16 @@ class ClientDownloadStats(models.Model):
             client_id=client_id, defaults={"downloads": 0}
         )
         return obj.increment_downloads()
+
+    @staticmethod
+    def get_total_downloads():
+        """Get the total number of downloads across all clients"""
+        return (
+            ClientDownloadStats.objects.using("statistics").aggregate(
+                total_downloads=models.Sum("downloads")
+            )["total_downloads"]
+            or 0
+        )
 
 
 class LoaderLaunchStats(models.Model):

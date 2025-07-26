@@ -21,6 +21,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:1420",
     "http://10.7.0.2:1420",
     "http://tauri.localhost",
+    "http://localhost:5173",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
